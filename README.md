@@ -11,7 +11,7 @@
 - src/pages/index.html — HTML-файл главной страницы
 - src/types/index.ts — файл с типами
 - src/index.ts — точка входа приложения
-- src\scss\styles.scss — корневой файл стилей
+- src/scss/styles.scss — корневой файл стилей
 - src/utils/constants.ts — файл с константами
 - src/utils/utils.ts — файл с утилитами
 
@@ -96,6 +96,9 @@ interface IProductList {
 
 #### Класс Api
 Содержит в себе базовую логику отправки запросов. В конструктор передается базовый адрес сервера и опциональный объект с заголовками запросов.
+
+`constructor(baseUrl: string, options: RequestInit = {})`- принимает базовый URL и глобальные опции для всех запросов(опционально).
+
 Методы: 
 - `get` - выполняет GET запрос на переданный в параметрах эндпоинт и возвращает промис с объектом, которым ответил сервер
 - `post` - принимает объект с данными, которые будут переданы в JSON в теле запроса, и отправляет эти данные на эндпоинт переданный как параметр при вызове метода. По умолчанию выполняется `POST` запрос, но метод запроса может быть переопределен заданием третьего параметра при вызове.
@@ -113,6 +116,8 @@ interface IProductList {
 
 ### Слой данных
 
+
+
 #### Класс CardsData
 
 Класс отвечает за хранение и логику работы с данными карточек, получаемых с сервера.\
@@ -127,6 +132,28 @@ interface IProductList {
 ### Классы представления
 
 Все классы представления отвечают за отображение внутри контейнера (DOM-элемент) передаваемых в них данных.
+
+#### Базовый класс Component 
+`abstract class Component<T>` - Необходим для управления DOM-элементами.\
+
+`protected constructor(protected readonly container: HTMLElement)` - конструктор принимает родительский элемент.
+
+Методы:
+
+`toggleClass(element: HTMLElement, className: string, force?: boolean)` - Переключить класс
+
+`protected setText(element: HTMLElement, value: unknown)` - Установить текстовое содержимое
+
+`setDisabled(element: HTMLElement, state: boolean)` - Сменить статус блокировки
+
+`protected setHidden(element: HTMLElement)` - Скрыть
+
+`protected setVisible(element: HTMLElement)` - Показать
+
+`protected setImage(element: HTMLImageElement, src: string, alt?: string)` - Установить изображение с алтернативным текстом
+
+`render(data?: Partial<T>): HTMLElement` - Вернуть корневой DOM-элемент
+
 
 #### Класс Modal
 Реализует модальное окно. Так же предоставляет методы `open` и `close` для управления отображением модального окна. Устанавливает слушатели на клавиатуру, для закрытия модального окна по Esc, на клик в оверлей и кнопку-крестик для закрытия попапа.  
