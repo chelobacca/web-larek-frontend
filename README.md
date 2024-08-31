@@ -42,6 +42,17 @@ yarn build
 ```
 
 ## Данные и типы данных, используемые в приложении
+
+Главная страница
+
+```
+interface IPage {
+    counter: number; 
+    catalog: HTMLElement[];
+    locked: boolean;
+}
+```
+
 Карточка товара
 
 ```
@@ -114,9 +125,27 @@ interface IProductList {
 - `emit` - инициализация события
 - `trigger` - возвращает функцию, при вызове которой инициализируется требуемое в параметрах событие   
 
+---
+---
+
 ### Слой данных
 
+ #### Класс Model 
+ Базовая модель, чтобы можно было отличить ее от простых объектов с данными/
 
+```
+ abstract class Model<T> {
+    constructor(data: Partial<T>, protected events: IEvents) {
+        Object.assign(this, data);
+    }
+
+    // Сообщить всем что модель поменялась
+    emitChanges(event: string, payload?: object) {
+        // Состав данных можно модифицировать
+        this.events.emit(event, payload ?? {});
+    }
+}
+```
 
 #### Класс CardsData
 
@@ -129,12 +158,15 @@ interface IProductList {
 Также класс предоставляет метод для взаимодействия с этими данными.
 - getCard(cardId: string): ICard - возвращает карточку по ее id
 
+---
+---
+
 ### Классы представления
 
 Все классы представления отвечают за отображение внутри контейнера (DOM-элемент) передаваемых в них данных.
 
 #### Базовый класс Component 
-`abstract class Component<T>` - Необходим для управления DOM-элементами.\
+`abstract class Component<T>` - Необходим для управления DOM-элементами.
 
 `protected constructor(protected readonly container: HTMLElement)` - конструктор принимает родительский элемент.
 
@@ -182,11 +214,34 @@ interface IProductList {
 - close (): void - расширяет родительский метод дополнительно при закрытии очищая поля формы и деактивируя кнопку сохранения
 - get form: HTMLElement - геттер для получения элемента формы
 
+#### Класс Page
+
+Отвечает за отображение главной страницы. Расширяет класс Component.\
+Поля класса:
+- protected _counter: HTMLElement; 
+- protected _catalog: HTMLElement;
+- protected _wrapper: HTMLElement;
+- protected _basket: HTMLElement;
+
+```constructor(container: HTMLElement, protected events: IEvents)``` - Конструктор принимает родительский элемент и обработчик событий\
+
+Методы: 
+- ```set counter(value: number)``` - сеттер счетчика товаров в корзине.
+- ```set catalog(items: HTMLElement[])``` - сеттер карточек товаров на главной странице.
+- ```set locked(value: boolean)``` - сеттер установки и снятия блокировки скролла страницы.
+
+
+
+
+---
+---
 
 ### Слой коммуникации
 
 #### Класс AppApi
 Принимает в конструктор экземпляр класса Api и предоставляет методы реализующие взаимодействие с бэкендом сервиса.
+
+
 
 ## Взаимодействие компонентов
 Код, описывающий взаимодействие представления и данных между собой находится в файле `index.ts`, выполняющем роль презентера.\

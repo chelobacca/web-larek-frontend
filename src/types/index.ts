@@ -8,8 +8,6 @@ export interface IProduct {
     price: number | null;
 }
 
-
-
 // интерфейс заказа
 export interface IOrder {
     payment: string;
@@ -31,3 +29,4 @@ export interface IProductList {
     total: number; 
     items: IProduct[];
 }
+
