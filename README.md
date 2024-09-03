@@ -56,7 +56,7 @@ interface IPage {
 Карточка товара
 
 ```
-interface IProduct {
+interface ICard {
 	id: string;
     description: string;
     image: string;
@@ -74,7 +74,7 @@ interface IOrder {
     phone: string;
     address: string;
     total: number
-    items: IProduct[];
+    items: ICard[];
 }    
 ```
 
@@ -88,9 +88,9 @@ export interface IOrderResponse {
 
 Список товаров  
 ```
-interface IProductList {
+interface ICardList {
     total: number; 
-    items: IProduct[];
+    items: ICard[];
 }
 ```
 
@@ -221,7 +221,7 @@ interface IProductList {
 - protected _counter: HTMLElement; 
 - protected _catalog: HTMLElement;
 - protected _wrapper: HTMLElement;
-- protected _basket: HTMLElement;
+- protected _cart: HTMLElement;
 
 ```constructor(container: HTMLElement, protected events: IEvents)``` - Конструктор принимает родительский элемент и обработчик событий\
 
@@ -231,7 +231,29 @@ interface IProductList {
 - ```set locked(value: boolean)``` - сеттер установки и снятия блокировки скролла страницы.
 
 
+#### Класс Card
 
+Отвечает за отображение карточки товара на главной странице, в модальном окне и в корзине. Расширяет класс Component.\
+
+Поля класса: 
+ - protected _category: HTMLElement;
+ - protected _id: HTMLElement;
+ - protected _title: HTMLElement;
+ - protected _image: HTMLImageElement;
+ - protected _price: HTMLElement;
+ - protected _button: HTMLButtonElement;
+
+ ```constructor(protected blockName: string, container: HTMLElement, actions?: ICardActions)``` - Конструктор принимает имя блока, родительский элемент и функцию-колбэк.\
+
+ Методы:
+
+ - ```set category(value: string)``` - сеттер цены товара
+ - ```set id(value: string)``` - сеттер идентификатора.
+ - ```get id(): string``` - геттер идентификатора
+ - ```set title(value: string)``` - сеттер названия товара
+ - ```get title(): string``` - геттер названия товара
+ - ```set image(value: string)``` - сеттер изображения товара
+ - ```set price(value: string)``` - сеттер цены товара
 
 ---
 ---

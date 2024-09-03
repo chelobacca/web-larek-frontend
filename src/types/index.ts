@@ -1,5 +1,5 @@
 // интерфейс карточки товара
-export interface IProduct {
+export interface ICard {
 	id: string;
     description: string;
     image: string;
@@ -15,7 +15,7 @@ export interface IOrder {
     phone: string;
     address: string;
     total: number
-    items: IProduct[];
+    items: ICard[];
 }    
 
 // интерфейс ответа сервера при отправке заказа
@@ -25,8 +25,8 @@ export interface IOrderResponse {
   }
 
 // интерфейс списка товаров  
-export interface IProductList {
+export interface ICardList {
     total: number; 
-    items: IProduct[];
+    items: ICard[];
 }
 
