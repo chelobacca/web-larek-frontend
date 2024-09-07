@@ -1,3 +1,13 @@
+export type ApiPostMethods = 'POST' | 'PUT' | 'DELETE';
+
+// интерфейс базового класса Api для запросов на сервер
+// методы также используются в другом классе согласно выбранному виду связей - композиции
+export interface IApi {
+    baseUrl: string;
+    get<T>(uri: string): Promise<T>;
+    post<T>(uri: string, data: object, method?: ApiPostMethods): Promise<T>;
+}
+
 // интерфейс карточки товара
 export interface ICard {
 	id: string;
@@ -24,7 +34,7 @@ export interface IOrderResponse {
     total: number;
   }
 
-// интерфейс списка товаров  
+// интерфейс списка товаров, получаемых с сервера
 export interface ICardList {
     total: number; 
     items: ICard[];
