@@ -18,6 +18,12 @@ export interface ICard {
     price: number | null;
 }
 
+//интерфейс коллекции товаров
+export interface ICardsData {
+    cards: ICard[];
+    preview: string | null;
+}
+
 // интерфейс заказа
 export interface IOrder {
     payment: string;
@@ -35,7 +41,7 @@ export interface IOrderResponse {
   }
 
 // интерфейс списка товаров, получаемых с сервера
-export interface ICardList {
+export interface ICardsList {
     total: number; 
     items: ICard[];
 }
