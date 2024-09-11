@@ -17,3 +17,4 @@ export class CardsContainer extends Component<ICardsContainer>{
         this.container.replaceChildren( ...items);
     }
 }
+    

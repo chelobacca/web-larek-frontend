@@ -18,7 +18,7 @@ export interface ICard {
     price: number | null;
 }
 
-//интерфейс коллекции товаров
+//интерфейс коллекции товаров (слой данных)
 export interface ICardsData {
     cards: ICard[];
     preview: string | null;
@@ -46,3 +46,13 @@ export interface ICardsList {
     items: ICard[];
 }
 
+export type CategoryType =
+  | 'другое'
+  | 'софт-скил'
+  | 'дополнительное'
+  | 'кнопка'
+  | 'хард-скил';
+  
+
+
+  

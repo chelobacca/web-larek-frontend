@@ -14,8 +14,8 @@ const baseApi: IApi = new Api(API_URL, settings);
 const api = new AppApi(baseApi); 
 const cardsData = new CardsData(events); //класс данных для хранения коллекции карточек
 
-//все шаблоны
-const gallery = new CardsContainer(ensureElement<HTMLTemplateElement>('.gallery'), events); //галерея карточек
+//все шаблоны 
+const gallery = new CardsContainer(ensureElement<HTMLTemplateElement>('.gallery'), events); //галерея карточек, контейнер, в который выводятся крточки
 const cardCatalogTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-catalog'); // шаблон карточки в галерее
 
 
@@ -26,7 +26,6 @@ api.getCardsList()
   .then((data) => {
     cardsData.cards = data.items;
     events.emit('cards:loaded');
-    // console.log(cardsData.cards);
     
   })
   .catch((err) => {
@@ -35,7 +34,6 @@ api.getCardsList()
 
 //отрисовка каталога товаров на главной странице
   events.on('cards:loaded', () => {
- 
     const cardsArray = cardsData.cards.map((card) => {
       const cardInstant = new Card(cloneTemplate(cardCatalogTemplate), events);
       return cardInstant.render(card);
@@ -46,6 +44,7 @@ api.getCardsList()
  
 
 
+// console.log(_category);
 
 
 
