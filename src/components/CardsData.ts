@@ -27,5 +27,13 @@ export class CardsData implements ICardsData {
     get preview () {
         return this._preview;
     }
+
+    getCard(cardId: string) {
+        return this._cards.find((item) => item.id === cardId)
+    }
+
+    getCards() {
+        return this._cards;
+      }
 }
 

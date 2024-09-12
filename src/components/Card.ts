@@ -9,7 +9,7 @@ export class Card extends Component<ICard> {
 
     protected events: IEvents;
 
-    protected _id: HTMLElement;
+    protected _id: string;
     protected _image?: HTMLImageElement;
     protected _title: HTMLElement;
     protected _category?: HTMLElement;
@@ -26,6 +26,8 @@ export class Card extends Component<ICard> {
         this._price = ensureElement<HTMLElement>('.card__price', this.container);
         this._category = this.container.querySelector('.card__category');
         
+        // слушатель клика по карточке
+        this.container.addEventListener('click', () => this.events.emit('card:select', { card: this }));
     }
     
     render(cardsData: Partial<ICard> | undefined) { 
@@ -35,9 +37,8 @@ export class Card extends Component<ICard> {
     }
 
     //сеттеры и геттеры
-    set id(value) {
-        this._id = value;
-        // console.log(this._id);
+    set id(id) {
+        this._id = id;
     };
 
     get id() { 
@@ -57,7 +58,7 @@ export class Card extends Component<ICard> {
     }
 
     set category(category: string) {
-        // this._category.textContent = category;      
+        this._category.textContent = category;      
         this.setText(this._category, category);
 
         switch (category) {
@@ -81,4 +82,6 @@ export class Card extends Component<ICard> {
         }
       }
    
+
+
 }

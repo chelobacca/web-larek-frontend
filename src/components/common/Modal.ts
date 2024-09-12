@@ -44,3 +44,4 @@ export class Modal extends Component<IModalData> {
     }
 
 }
+

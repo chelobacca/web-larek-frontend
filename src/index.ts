@@ -8,6 +8,7 @@ import { Card } from './components/Card';
 import { CardsData } from './components/CardsData';
 import { cloneTemplate, ensureElement } from './utils/utils';
 import { CardsContainer } from './components/CardsContainer';
+import { Modal } from './components/common/Modal';
 
 const events = new EventEmitter(); //брокер событий
 const baseApi: IApi = new Api(API_URL, settings);
@@ -17,8 +18,8 @@ const cardsData = new CardsData(events); //класс данных для хра
 //все шаблоны 
 const gallery = new CardsContainer(ensureElement<HTMLTemplateElement>('.gallery'), events); //галерея карточек, контейнер, в который выводятся крточки
 const cardCatalogTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-catalog'); // шаблон карточки в галерее
-
-
+const cardPreviewTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-preview'); // шаблон карточки модальном окне 
+const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 
 
 //загрузка карточек с сервера
@@ -35,21 +36,29 @@ api.getCardsList()
 //отрисовка каталога товаров на главной странице
   events.on('cards:loaded', () => {
     const cardsArray = cardsData.cards.map((card) => {
-      const cardInstant = new Card(cloneTemplate(cardCatalogTemplate), events);
-      return cardInstant.render(card);
+      const cardInstance = new Card(cloneTemplate(cardCatalogTemplate), events);
+      return cardInstance.render(card);
     });
 
     gallery.render({ catalog: cardsArray });
   });
  
+//клик по карточке, открытие окна с товаром
+  events.on('card:select', (data: { card: Card }) => {
+    const { card } = data;
+    const cardPreview = new Card(cloneTemplate(cardPreviewTemplate), events);
+    const cardModalData = cardsData.getCard(card.id);   
+
+    modal.render({
+      content: cardPreview.render(cardModalData)
+  });
+
+  });
 
 
-// console.log(_category);
 
 
 
 
 
 
-
-  
