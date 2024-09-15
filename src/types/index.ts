@@ -24,6 +24,13 @@ export interface ICardsData {
     preview: string | null;
 }
 
+//интерфейс корзины
+export interface IBasketData {
+    basketCards: ICard[];
+    
+
+}
+
 // интерфейс заказа
 export interface IOrder {
     payment: string;

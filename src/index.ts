@@ -10,19 +10,30 @@ import { cloneTemplate, ensureElement } from './utils/utils';
 import { CardsContainer } from './components/CardsContainer';
 import { Modal } from './components/common/Modal';
 import { Page } from './components/Page';
+import { Basket } from './components/Basket';
+import { BasketData } from './components/BasketData';
 
 const events = new EventEmitter(); //брокер событий
 const baseApi: IApi = new Api(API_URL, settings);
 const api = new AppApi(baseApi);
 const cardsData = new CardsData(events); //класс данных для хранения коллекции карточек
+const basketData = new BasketData; //класс данных для хранения содержимого корзины
 
-//все шаблоны
-const gallery = new CardsContainer(ensureElement<HTMLTemplateElement>('.gallery'), events); //галерея карточек, контейнер, в который выводятся крточки
-const cardCatalogTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-catalog'); // шаблон карточки в галерее
-const cardPreviewTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-preview'); // шаблон карточки модальном окне
+//все шаблоны и контейнеры
+const cardCatalogTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-catalog'); //шаблон карточки в галерее
+const cardPreviewTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-preview'); //шаблон карточки модальном окне
+const cardBasketTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-basket'); //шаблон карточки в корзине
+const basketTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#basket'); //шаблон корзины
+
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 const page = new Page(document.body, events);
+const gallery = new CardsContainer(ensureElement<HTMLTemplateElement>('.gallery'), events); //галерея, контейнер, в который выводятся карточки
+const basket = new Basket(cloneTemplate(basketTemplate), events);
 
+//слушатель на все события
+events.onAll((event) => {
+	console.log(event.eventName, event.data);
+});
 
 //загрузка карточек с сервера
 api
@@ -58,19 +69,38 @@ events.on('card:select', (data: { card: Card }) => {
 
 //клик по тележке, открытие корзины
 events.on('cart:open', () => {
-
-	console.log(page);
-
+	
+	
+	
+	modal.render({
+		content: basket.render(),
+	});
 });
+
+//нажатие кнопки добавления в корзину
+events.on('card:add', (data: { card: Card }) => {
+	const { card } = data; 
+	
+	const pickedCard = cardsData.getCard(card.id);
+
+	basketData.addСard(pickedCard); 
+	console.log(basketData.basketCards);
+  
+	modal.close();
+	// basketCounter.counter = orderData.getTotal();    
+  
+  });
+
 
 
 // Блокируем прокрутку страницы если открыта модалка
 events.on('modal:open', () => {
-  page.locked = true;
+	page.locked = true;
 });
 
 // ... и разблокируем
 events.on('modal:close', () => {
-  page.locked = false;
+	page.locked = false;
 });
 
+console.log();

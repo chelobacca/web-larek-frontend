@@ -14,7 +14,9 @@ export class Card extends Component<ICard> {
     protected _title: HTMLElement;
     protected _category?: HTMLElement;
     protected _price: HTMLElement;
-    protected _button: HTMLButtonElement;
+    protected _button?: HTMLButtonElement;
+
+    protected _addButton?: HTMLButtonElement;
 
     constructor(protected container: HTMLElement, events: IEvents) {
         super(container); 
@@ -25,11 +27,24 @@ export class Card extends Component<ICard> {
         this._title = ensureElement<HTMLElement>('.card__title', this.container);
         this._price = ensureElement<HTMLElement>('.card__price', this.container);
         this._category = this.container.querySelector('.card__category');
-        
+        this._addButton = this.container.querySelector('.button.card__button');
+
+
         // слушатель клика по карточке
         this.container.addEventListener('click', () => this.events.emit('card:select', { card: this }));
+        
+        //слушатель кнопки добавления в корзину
+        if (this._addButton) {
+            this.container.addEventListener('click', (event) => {
+            event.stopPropagation(); //останавливаем всплытие события
+
+            this.events.emit('card:add', { card: this });
+        })
+        }
     }
     
+        
+
     render(cardsData: Partial<ICard> | undefined) { 
         const { ...otherCardsData } = cardsData;
         Object.assign(this, otherCardsData); 
