@@ -17,10 +17,10 @@ const events = new EventEmitter(); //брокер событий
 const baseApi: IApi = new Api(API_URL, settings);
 const api = new AppApi(baseApi);
 const cardsData = new CardsData(events); //класс данных для хранения коллекции карточек
-const basketData = new BasketData; //класс данных для хранения содержимого корзины
+const basketData = new BasketData(); //класс данных для хранения содержимого корзины
 
 //все шаблоны и контейнеры
-const cardCatalogTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-catalog'); //шаблон карточки в галерее
+export const cardCatalogTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-catalog'); //шаблон карточки в галерее
 const cardPreviewTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-preview'); //шаблон карточки модальном окне
 const cardBasketTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-basket'); //шаблон карточки в корзине
 const basketTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#basket'); //шаблон корзины
@@ -61,17 +61,21 @@ events.on('card:select', (data: { card: Card }) => {
 	const { card } = data;
 	const cardPreview = new Card(cloneTemplate(cardPreviewTemplate), events);
 	const cardModalData = cardsData.getCard(card.id);
-
+	
 	modal.render({
-		content: cardPreview.render(cardModalData),
+		content: cardPreview.render(cardModalData)
 	});
 });
 
-//клик по тележке, открытие корзины
+//клик по тележке в хедере, открытие корзины
 events.on('cart:open', () => {
-	
-	
-	
+	basket.items = basketData.basketCards.map((card, index) => {
+		const cardBasket = new Card(cloneTemplate(cardBasketTemplate), events);
+		cardBasket.index = index + 1;
+
+		return cardBasket.render(card);
+	});
+
 	modal.render({
 		content: basket.render(),
 	});
@@ -79,19 +83,27 @@ events.on('cart:open', () => {
 
 //нажатие кнопки добавления в корзину
 events.on('card:add', (data: { card: Card }) => {
-	const { card } = data; 
-	
+	const { card } = data;
 	const pickedCard = cardsData.getCard(card.id);
 
-	basketData.addСard(pickedCard); 
-	console.log(basketData.basketCards);
-  
+	basketData.addСard(pickedCard);
+	pickedCard.picked = true;
+	page.counter = basketData.getCounter();
 	modal.close();
-	// basketCounter.counter = orderData.getTotal();    
-  
-  });
+});
 
+//нажатие кнопки удаления товара из корзины
+events.on('card:delete', (data: { card: Card }) => {
+	const { card } = data;
+	const cancelledCard = cardsData.getCard(card.id);
 
+	basketData.deleteCard(cancelledCard);
+	cancelledCard.picked = false;
+	page.counter = basketData.getCounter();
+
+	//рендерим заново корзину после удаления
+	events.emit('cart:open');
+	});
 
 // Блокируем прокрутку страницы если открыта модалка
 events.on('modal:open', () => {
@@ -103,4 +115,3 @@ events.on('modal:close', () => {
 	page.locked = false;
 });
 
-console.log();

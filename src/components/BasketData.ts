@@ -29,5 +29,13 @@ export class BasketData implements IBasketData {
 	clearBasketProducts() {
 		this.basketCards = [];
 	}
+
+	  getCounter() {
+		return this.basketCards.length;
+	  }
+
+	  getCardIndex(card: ICard): number {
+        return this._basketCards.indexOf(card);
+    }
 }
 

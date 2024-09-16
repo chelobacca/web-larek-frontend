@@ -16,6 +16,8 @@ export interface ICard {
     title: string;
     category: string;
     price: number | null;
+    picked: boolean;
+    index: number;
 }
 
 //интерфейс коллекции товаров (слой данных)
