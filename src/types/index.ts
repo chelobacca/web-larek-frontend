@@ -29,8 +29,6 @@ export interface ICardsData {
 //интерфейс корзины
 export interface IBasketData {
     basketCards: ICard[];
-    
-
 }
 
 // интерфейс заказа
@@ -62,6 +60,10 @@ export type CategoryType =
   | 'кнопка'
   | 'хард-скил';
   
+  export interface IOrderForm {
+    address: string;
+    payment: string;
+}
 
 
   

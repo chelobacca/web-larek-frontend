@@ -12,6 +12,7 @@ import { Modal } from './components/common/Modal';
 import { Page } from './components/Page';
 import { Basket } from './components/Basket';
 import { BasketData } from './components/BasketData';
+import { Order } from './components/Order';
 
 const events = new EventEmitter(); //брокер событий
 const baseApi: IApi = new Api(API_URL, settings);
@@ -24,11 +25,14 @@ export const cardCatalogTemplate: HTMLTemplateElement = ensureElement<HTMLTempla
 const cardPreviewTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-preview'); //шаблон карточки модальном окне
 const cardBasketTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-basket'); //шаблон карточки в корзине
 const basketTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#basket'); //шаблон корзины
+const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
 
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 const page = new Page(document.body, events);
 const gallery = new CardsContainer(ensureElement<HTMLTemplateElement>('.gallery'), events); //галерея, контейнер, в который выводятся карточки
 const basket = new Basket(cloneTemplate(basketTemplate), events);
+const order = new Order(cloneTemplate(orderTemplate), events)
+
 
 //слушатель на все события
 events.onAll((event) => {
@@ -56,7 +60,7 @@ events.on('cards:loaded', () => {
 	gallery.render({ catalog: cardsArray });
 });
 
-//клик по карточке, открытие окна с товаром
+//клик по карточке, открывается окно с товаром
 events.on('card:select', (data: { card: Card }) => {
 	const { card } = data;
 	const cardPreview = new Card(cloneTemplate(cardPreviewTemplate), events);
@@ -67,7 +71,7 @@ events.on('card:select', (data: { card: Card }) => {
 	});
 });
 
-//клик по тележке в хедере, открытие корзины
+//клик по тележке в хедере, открывается корзина
 events.on('cart:open', () => {
 	basket.items = basketData.basketCards.map((card, index) => {
 		const cardBasket = new Card(cloneTemplate(cardBasketTemplate), events);
@@ -101,7 +105,7 @@ events.on('card:delete', (data: { card: Card }) => {
 	cancelledCard.picked = false;
 	page.counter = basketData.getCounter();
 
-	//рендерим заново корзину после удаления
+	//заново рендерим корзину после удаления карточки
 	events.emit('cart:open');
 	});
 
@@ -115,3 +119,18 @@ events.on('modal:close', () => {
 	page.locked = false;
 });
 
+//нажатие кнопки "оформить", открывается формы с адресом и оплатой
+events.on('order:open', () => {
+	modal.render({
+	  content: order.render(
+		{
+		  address: '',
+		  valid: true,
+		  errors: []
+		}
+	  ),
+	});
+  });
+  
+
+  
