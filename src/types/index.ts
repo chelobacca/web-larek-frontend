@@ -27,9 +27,9 @@ export interface ICardsData {
 }
 
 //интерфейс корзины
-export interface IBasketData {
-    basketCards: ICard[];
-}
+// export interface IBasketData {
+//     basketCards: ICard[];
+// }
 
 // интерфейс заказа
 export interface IOrderData {
