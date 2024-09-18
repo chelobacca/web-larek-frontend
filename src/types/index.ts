@@ -32,6 +32,17 @@ export interface IBasketData {
 }
 
 // интерфейс заказа
+export interface IOrderData {
+    payment: string;
+    email: string;
+    phone: string;
+    address: string;
+    total: number
+    basketCards: ICard[];
+}
+
+
+// интерфейс заказа 
 export interface IOrder {
     payment: string;
     email: string;
@@ -63,6 +74,7 @@ export type CategoryType =
   export interface IOrderForm {
     address: string;
     payment: string;
+    // phone: string;
 }
 
 

@@ -11,14 +11,16 @@ import { CardsContainer } from './components/CardsContainer';
 import { Modal } from './components/common/Modal';
 import { Page } from './components/Page';
 import { Basket } from './components/Basket';
-import { BasketData } from './components/BasketData';
+// import { BasketData } from './components/BasketData';
 import { Order } from './components/Order';
+import { OrderData } from './components/OrderData';
 
 const events = new EventEmitter(); //брокер событий
 const baseApi: IApi = new Api(API_URL, settings);
 const api = new AppApi(baseApi);
 const cardsData = new CardsData(events); //класс данных для хранения коллекции карточек
-const basketData = new BasketData(); //класс данных для хранения содержимого корзины
+// const orderData = new BasketData(); //класс данных для хранения содержимого корзины
+const orderData = new OrderData(events);
 
 //все шаблоны и контейнеры
 export const cardCatalogTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-catalog'); //шаблон карточки в галерее
@@ -26,6 +28,8 @@ const cardPreviewTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateEleme
 const cardBasketTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#card-basket'); //шаблон карточки в корзине
 const basketTemplate: HTMLTemplateElement = ensureElement<HTMLTemplateElement>('#basket'); //шаблон корзины
 const orderTemplate = ensureElement<HTMLTemplateElement>('#order');
+const contactsTemplate = ensureElement<HTMLTemplateElement>('#contacts');
+const successTemplate = ensureElement<HTMLTemplateElement>('#success')
 
 const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
 const page = new Page(document.body, events);
@@ -73,7 +77,7 @@ events.on('card:select', (data: { card: Card }) => {
 
 //клик по тележке в хедере, открывается корзина
 events.on('cart:open', () => {
-	basket.items = basketData.basketCards.map((card, index) => {
+	basket.items = orderData.basketCards.map((card, index) => {
 		const cardBasket = new Card(cloneTemplate(cardBasketTemplate), events);
 		cardBasket.index = index + 1;
 
@@ -90,9 +94,9 @@ events.on('card:add', (data: { card: Card }) => {
 	const { card } = data;
 	const pickedCard = cardsData.getCard(card.id);
 
-	basketData.addСard(pickedCard);
+	orderData.addСard(pickedCard);
 	pickedCard.picked = true;
-	page.counter = basketData.getCounter();
+	page.counter = orderData.getCounter();
 	modal.close();
 });
 
@@ -101,9 +105,9 @@ events.on('card:delete', (data: { card: Card }) => {
 	const { card } = data;
 	const cancelledCard = cardsData.getCard(card.id);
 
-	basketData.deleteCard(cancelledCard);
+	orderData.deleteCard(cancelledCard);
 	cancelledCard.picked = false;
-	page.counter = basketData.getCounter();
+	page.counter = orderData.getCounter();
 
 	//заново рендерим корзину после удаления карточки
 	events.emit('cart:open');
@@ -121,6 +125,7 @@ events.on('modal:close', () => {
 
 //нажатие кнопки "оформить", открывается формы с адресом и оплатой
 events.on('order:open', () => {
+	
 	modal.render({
 	  content: order.render(
 		{
@@ -132,5 +137,20 @@ events.on('order:open', () => {
 	});
   });
   
-
+//сабмит формы с адресом и способом оплаты
+  events.on('order:submit', () => {
+	// appData.order.total = appData.getTotalBasketPrice()
+	// appData.setItems();
+	// modal.render({
+	//   content: contacts.render(
+	// 	{
+	// 	  valid: false,
+	// 	  errors: []
+	// 	}
+	//   ),
+	// });
+	console.log(orderData.getOrder());
+	
+	
+  })
   
