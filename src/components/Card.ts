@@ -1,10 +1,10 @@
 import { ICard } from '../types';
 import { CDN_URL } from '../utils/constants';
-import { ensureElement } from '../utils/utils';
+import { ensureElement, formatNumber } from '../utils/utils';
 import { Component } from './base/Component';
 import { IEvents } from './base/events';
 import { CategoryType } from '../types'; //////////////////////////////////////////////////////
-import { cardCatalogTemplate } from '..';
+import { cardCatalogTemplate } from '..'; //////////////////////////////////
 
 export class Card extends Component<ICard> {
 	protected events: IEvents;
@@ -21,7 +21,6 @@ export class Card extends Component<ICard> {
 
 	constructor(protected container: HTMLElement, events: IEvents) {
 		super(container);
-
 		this.events = events;
 
 		this._image = this.container.querySelector('.card__image');
@@ -29,9 +28,9 @@ export class Card extends Component<ICard> {
 		this._price = ensureElement<HTMLElement>('.card__price', this.container);
 		this._category = this.container.querySelector('.card__category');
 		this._index = this.container.querySelector('.basket__item-index');
-
         this._addButton = this.container.querySelector('.button.card__button');
         this._deleteButton = this.container.querySelector('.basket__item-delete');
+		this._picked = false;
 
 		// слушатель клика по карточке (если карточка рендерится в галерее)
         if (this.container.classList.contains('gallery__item')) {
@@ -42,16 +41,15 @@ export class Card extends Component<ICard> {
 		if (this._addButton) {
 			this._addButton.addEventListener('click', (event) => {
 				event.stopPropagation();
-
-				this.events.emit('card:add', { card: this });
+				this.events.emit('card:add', this);
 			});
 		}
 
+		//слушатель кнопки удаления из корзины
 		if (this._deleteButton) {
 			this._deleteButton.addEventListener('click', (event) => {
 				event.stopPropagation();
-
-				this.events.emit('card:delete', { card: this });
+				this.events.emit('card:delete', this);
 			});
 		}
 	}
@@ -79,8 +77,13 @@ export class Card extends Component<ICard> {
 		this._title.textContent = value;
 	}
 
-	set price(value: string) {
-		this._price.textContent = value;
+	set price(value: number | null) {
+		if (value !== null) {
+		this._price.textContent = formatNumber(value) + ' синапсов';
+		}
+		if (value === null) {
+			this.setText(this._price, 'Бесценно');
+		}
 	}
 
 	set category(category: string) {
@@ -118,6 +121,7 @@ export class Card extends Component<ICard> {
 
 	//изменение статуса "карточка уже в корзине" и (де)активация кнопки добавления
 	set picked(value: boolean) {
+		this._picked = value;
 		if (this._addButton) {
 			this._addButton.disabled = value;
 		}

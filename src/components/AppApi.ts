@@ -1,5 +1,5 @@
 import { Api, ApiListResponse } from "./base/api";
-import { IApi, ICard, ICardsList } from "../types";
+import { IApi, ICard, ICardsList, IOrder, IOrderData, IResponse } from "../types";
 
 // interface IAppAPI {
 // 	getProducts: () => Promise<ICard[]>;
@@ -18,8 +18,8 @@ export class AppApi {
 		return this._baseApi.get<ICardsList>(`/product`).then((result: ICardsList) => result);
 	}
 	
-	// postOrder(orderData: IOrderSendData): Promise<IResponse> {
-    //     return this._baseApi.post<IResponse>('/order', orderData)
-    //         .then((result: IResponse) => result);
-    // }
+	postOrder(orderData: IOrder): Promise<IResponse> {
+        return this._baseApi.post<IResponse>('/order', orderData)
+            .then((result: IResponse) => result);
+    }
 }

@@ -134,7 +134,7 @@ export function createElement<
     return element;
 }
 
-//приведение числа к строке (функция из утилит проекта "Оно тебе надо")
+//приведение числа к строке с разделителем между классами (из утилит проекта "Оно тебе надо")
 export function formatNumber(x: number, sep = ' ') {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, sep);
 }

@@ -31,7 +31,7 @@ export interface ICardsData {
 //     basketCards: ICard[];
 // }
 
-// интерфейс заказа
+// интерфейс модели данных заказа 
 export interface IOrderData {
     payment: string;
     email: string;
@@ -42,14 +42,14 @@ export interface IOrderData {
 }
 
 
-// интерфейс заказа 
+// интерфейс заказа, отправляемого на сервер
 export interface IOrder {
     payment: string;
     email: string;
     phone: string;
     address: string;
     total: number
-    items: ICard[];
+    items: string[];
 }    
 
 // интерфейс ответа сервера при отправке заказа
@@ -78,4 +78,7 @@ export type CategoryType =
 }
 
 
-  
+export interface IResponse { 
+    id: string;
+    total: number;
+}  

@@ -1,6 +1,5 @@
 import { ICard, IOrderData } from '../types';
 import { IEvents } from './base/events';
-// import { BasketData } from './BasketData';
 
 export class OrderData implements IOrderData {
 	payment: string;
@@ -53,4 +52,9 @@ export class OrderData implements IOrderData {
 			items: this._basketCards.map((product) => product.id),
 		};
 	}
+
+	getTotalCost() {
+        return this.basketCards.reduce((totalcost, card) => totalcost + card.price, 0)
+    }
 }
+
