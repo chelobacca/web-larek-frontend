@@ -1,5 +1,5 @@
 import './scss/styles.scss';
-import { IApi, ICard } from './types';
+import { IApi, ICard, IOrderForm } from './types';
 import { Api } from './components/base/api';
 import { AppApi } from './components/AppApi';
 import { CDN_URL, API_URL, settings } from './utils/constants';
@@ -66,29 +66,30 @@ events.on('cards:loaded', () => {
 
 //клик по карточке, открывается окно с товаром
 events.on('card:select', (data: { card: Card }) => {
+	/////////////FIXXXXXXXXXX............/////////////////////////////////////////////
 	const { card } = data;
-	const cardPreview = new Card(cloneTemplate(cardPreviewTemplate), events);
-	const cardModalData = cardsData.getCard(card.id);
+	const cardInstance = new Card(cloneTemplate(cardPreviewTemplate), events);
+	const viewedCard = cardsData.getCard(card.id);
 
 	modal.render({
-		content: cardPreview.render(cardModalData),
+		content: cardInstance.render(viewedCard),
 	});
 });
 
 //клик по тележке в хедере, открывается корзина
 events.on('cart:open', () => {
-	
 	basket.items = orderData.basketCards.map((card, index) => {
-		const cardBasket = new Card(cloneTemplate(cardBasketTemplate), events);
-		cardBasket.index = index + 1;
-		return cardBasket.render(card);
+		const cardInstance = new Card(cloneTemplate(cardBasketTemplate), events);
+		cardInstance.index = index + 1;
+		return cardInstance.render(card);
 	});
+	//(де)активация кнопки "оформить" в зависимости от наличия товаров в корзине
+	basket.selected = orderData.basketCards;
 
-	basket.setTotalCost(orderData.getTotalCost());
+	basket.setTotalCost(orderData.getTotalCost()); //суммарная стоимость товаров
 
 	modal.render({
 		content: basket.render(),
-		
 	});
 });
 
@@ -98,8 +99,8 @@ events.on('card:add', (data: ICard) => {
 	const pickedCard = cardsData.getCard(card.id);
 
 	orderData.addСard(pickedCard);
-	pickedCard.picked = true;
-	page.counter = orderData.getCounter();
+	pickedCard.picked = true; //товар в корзине, кнопка добавления неактивна
+	page.counter = orderData.getCounter(); 
 	modal.close();
 });
 
@@ -109,11 +110,9 @@ events.on('card:delete', (data: ICard) => {
 	const cancelledCard = cardsData.getCard(card.id);
 
 	orderData.deleteCard(cancelledCard);
-	cancelledCard.picked = false;
-	page.counter = orderData.getCounter();
-
-	//заново рендерим корзину после удаления карточки
-	events.emit('cart:open');
+	cancelledCard.picked = false; //отказались от товара, кнопка активна 
+	page.counter = orderData.getCounter(); 
+	events.emit('cart:open'); //заново рендерим корзину после удаления карточки
 });
 
 //нажатие кнопки "оформить", открывается окно с адресом и способом оплаты
@@ -121,7 +120,7 @@ events.on('order:open', () => {
 	modal.render({
 		content: order.render({
 			address: '',
-			valid: true,
+			valid: false,
 			errors: [],
 		}),
 	});
@@ -133,28 +132,46 @@ events.on('order:submit', (data) => {
 		content: contacts.render({
 			email: '',
 			phone: '',
-			valid: true, //по дефолту должно быть false
+			valid: false, 
 			errors: [],
 		}),
 	});
 });
 
+//изменилось одно из полей в форме с адресом и способом оплаты
+events.on(/^order\..*:change/, (data: { field: keyof IOrderForm; value: string }) => {
+	orderData.setOrderField(data.field, data.value);
+});
+
+//изменилось одно из полей в форме с почтой и телефоном
+events.on(/^contacts\..*:change/, (data: { field: keyof IOrderForm; value: string }) => {
+	orderData.setOrderField(data.field, data.value);
+});
+
+// Изменилось состояние валидации формы
+events.on('formErrors:change', (errors: Partial<IOrderForm>) => {
+	console.log('ERROR');
+	
+    const { payment, address } = errors;
+    order.valid = !payment && !address;
+    order.errors = Object.values({payment, address}).filter(i => !!i).join('; ');
+});
+
+
+
+
+
+
+
 //нажатие кнопки "оплатить", объект с заказом отправляется на сервер
 events.on('contacts:submit', () => {
-	api.postOrder(testObj).then((result) => {
+	api.postOrder(orderData.getOrder()).then((result) => {
+		
+		//убрать////////////////////////////////////////////////////////////
+		console.log(orderData.getOrder());
 		console.log(result);
 	});
 });
-
-// TEST ORDER OBJECT
-const testObj = {
-	payment: 'online',
-	email: 'test@test.ru',
-	phone: '+71234567890',
-	address: 'Spb Vosstania 1',
-	total: 2200,
-	items: ['854cef69-976d-4c2a-a18c-2aa45046c390', 'c101ab44-ed99-4a54-990d-47aa2bb4e7d9'],
-};
 
 // Блокируем прокрутку страницы если открыта модалка
 events.on('modal:open', () => {

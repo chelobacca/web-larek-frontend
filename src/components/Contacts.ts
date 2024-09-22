@@ -1,13 +1,11 @@
+import { IContactsForm } from '../types';
 import { IEvents } from './base/events';
 import { Form } from './common/Form';
 
-export interface IContacts {
-  phone: string;
-  email: string;
-}
+
 
 //окно с номером телефона и почтой 
-export class Contacts extends Form<IContacts> {
+export class Contacts extends Form<IContactsForm> {
   constructor(container: HTMLFormElement, events: IEvents)
    {
     super(container, events);

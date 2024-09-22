@@ -26,21 +26,14 @@ export interface ICardsData {
     preview: string | null;
 }
 
-//интерфейс корзины
-// export interface IBasketData {
-//     basketCards: ICard[];
-// }
-
 // интерфейс модели данных заказа 
 export interface IOrderData {
     payment: string;
+    address: string;
     email: string;
     phone: string;
-    address: string;
-    total: number
     basketCards: ICard[];
 }
-
 
 // интерфейс заказа, отправляемого на сервер
 export interface IOrder {
@@ -72,13 +65,18 @@ export type CategoryType =
   | 'хард-скил';
   
   export interface IOrderForm {
-    address: string;
     payment: string;
-    // phone: string;
+    address: string;
 }
 
+export interface IContactsForm {
+    phone: string;
+    email: string;
+  }
 
 export interface IResponse { 
     id: string;
     total: number;
 }  
+
+export type FormErrors = Partial<Record<keyof IOrder, string>>;

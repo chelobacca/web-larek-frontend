@@ -32,7 +32,7 @@ export class Card extends Component<ICard> {
         this._deleteButton = this.container.querySelector('.basket__item-delete');
 		this._picked = false;
 
-		// слушатель клика по карточке (если карточка рендерится в галерее)
+		// слушатель клика по карточке (только если карточка рендерится в галерее)
         if (this.container.classList.contains('gallery__item')) {
 	    this.container.addEventListener('click', () => this.events.emit('card:select', { card: this }));
         };
@@ -113,6 +113,7 @@ export class Card extends Component<ICard> {
 		}
 	}
 
+	//порядковый номер карточки товара в списке в корзине
 	set index(index: number) {
 		if (this._index) {
 			this.setText(this._index, index);

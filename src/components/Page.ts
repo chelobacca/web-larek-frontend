@@ -21,16 +21,18 @@ export class Page extends Component<IPage> {
         this._wrapper = ensureElement<HTMLElement>('.page__wrapper');
         this._basket = ensureElement<HTMLElement>('.header__basket');
 
+        //слушатель клика на тележке
         this._basket.addEventListener('click', () => {
             this.events.emit('cart:open');
         });
     }
 
+    //установка счетчика на тележке
     set counter(value: number) {
         this.setText(this._counter, String(value));
     }
 
-
+    //блокировка прокрутки страницы, используется при открытии модального окна
     set locked(value: boolean) {
         if (value) {
             this._wrapper.classList.add('page__wrapper_locked');

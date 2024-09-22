@@ -1,11 +1,12 @@
 import { Component } from "./base/Component";
 import { cloneTemplate, createElement, ensureElement, formatNumber } from "../utils/utils";
 import { EventEmitter } from "./base/events";
-import { IEvents } from "./base/events";
+import { ICard } from "../types";
 
 interface IBasketView {
     items: HTMLElement[];
     total: number;
+    selected: string[];
 }
 
 export class Basket extends Component<IBasketView> {
@@ -16,7 +17,6 @@ export class Basket extends Component<IBasketView> {
     constructor(container: HTMLElement, protected events: EventEmitter) {
         super(container);
         this.events = events;
-
         this._list = ensureElement<HTMLElement>('.basket__list', this.container);
         this._total = this.container.querySelector('.basket__price');
         this._button = this.container.querySelector('.basket__button');
@@ -40,10 +40,17 @@ export class Basket extends Component<IBasketView> {
         }
     }
 
+    //проверка наличия товаров корзине для управления состоянием кнопки "оформить"
+    set selected(items: ICard[]) {
+        if (items.length) {
+            this.setDisabled(this._button, false);
+        } else {
+            this.setDisabled(this._button, true);
+        }
+    }
+
     setTotalCost(total: number) {
-
         this._total.textContent = formatNumber(total) + ' синапсов'
-
     }
     
 }
