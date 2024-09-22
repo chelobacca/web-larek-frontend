@@ -8,6 +8,13 @@ export interface IApi {
     post<T>(uri: string, data: object, method?: ApiPostMethods): Promise<T>;
 }
 
+export interface IAppState {
+    basketCards: ICard[];
+    basket: string[];
+    order: IOrder;
+    loading: boolean;
+}
+
 // интерфейс карточки товара
 export interface ICard {
 	id: string;
@@ -35,8 +42,15 @@ export interface IOrderData {
     basketCards: ICard[];
 }
 
+  export interface IOrderForm {
+    payment: string;
+    address: string;
+    email: string;
+    phone: string;
+}
+
 // интерфейс заказа, отправляемого на сервер
-export interface IOrder {
+export interface IOrder extends IOrderForm  {
     payment: string;
     email: string;
     phone: string;
@@ -64,10 +78,7 @@ export type CategoryType =
   | 'кнопка'
   | 'хард-скил';
   
-  export interface IOrderForm {
-    payment: string;
-    address: string;
-}
+
 
 export interface IContactsForm {
     phone: string;
@@ -79,4 +90,9 @@ export interface IResponse {
     total: number;
 }  
 
-export type FormErrors = Partial<Record<keyof IOrder, string>>;
+export type FormErrors = Partial<Record<keyof IOrderForm, string>>;
+
+
+export interface ISuccess {
+    
+}
