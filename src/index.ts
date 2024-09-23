@@ -11,7 +11,6 @@ import { CardsContainer } from './components/CardsContainer';
 import { Modal } from './components/common/Modal';
 import { Page } from './components/Page';
 import { Basket } from './components/Basket';
-// import { BasketData } from './components/BasketData';
 import { Order } from './components/Order';
 import { AppState } from './components/AppData';
 import { Contacts } from './components/Contacts';
@@ -41,7 +40,7 @@ const basket = new Basket(cloneTemplate(basketTemplate), events);
 const order = new Order(cloneTemplate(orderTemplate), events);
 const contacts = new Contacts(cloneTemplate(contactsTemplate), events);
 
-//слушатель на все события
+// Чтобы мониторить все события, для отладки (слушатель на все события)
 events.onAll((event) => {
 	console.log(event.eventName, event.data);
 });
@@ -85,9 +84,8 @@ events.on('cart:open', () => {
 		cardInstance.index = index + 1;
 		return cardInstance.render(card);
 	});
-	//(де)активация кнопки "оформить" в зависимости от наличия товаров в корзине
-	basket.selected = appData.basketCards;
 
+	basket.selected = appData.basketCards; //(де)активация кнопки "оформить" в зависимости от наличия товаров в корзине
 	basket.setTotalCost(appData.getTotalCost()); //суммарная стоимость товаров
 
 	modal.render({
@@ -102,7 +100,7 @@ events.on('card:add', (data: ICard) => {
 
 	appData.addСard(pickedCard);
 	pickedCard.picked = true; //товар в корзине, кнопка добавления неактивна
-	page.counter = appData.getCounter();
+	page.counter = appData.getCounter(); //обновление счетчика
 	modal.close();
 });
 
@@ -119,8 +117,6 @@ events.on('card:delete', (data: ICard) => {
 
 //нажатие кнопки "оформить", открывается окно с адресом и способом оплаты
 events.on('order:open', () => {
-	console.log(appData.order);
-
 	modal.render({
 		content: order.render({
 			address: '',
@@ -128,10 +124,12 @@ events.on('order:open', () => {
 			errors: [],
 		}),
 	});
+	order.resetPayment(); //сброс выделения кнопок выбора способа оплаты
+	appData.order.payment = ''; //сброс выбранного способа оплаты
 });
 
 //нажатие кнопки "далее", открывается окно с почтой и телефоном
-events.on('order:submit', (data) => {
+events.on('order:submit', () => {
 	modal.render({
 		content: contacts.render({
 			email: '',
@@ -172,8 +170,6 @@ events.on('contactsFormErrors:change', (errors: Partial<IOrderForm>) => {
 
 //нажатие кнопки "оплатить", объект с заказом отправляется на сервер
 events.on('contacts:submit', () => {
-	console.log(appData.getOrder());
-
 	api
 		.postOrder(appData.getOrder())
 		.then((result) => {

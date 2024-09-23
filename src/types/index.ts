@@ -42,13 +42,6 @@ export interface IOrderData {
 	basketCards: ICard[];
 }
 
-export interface IOrderForm {
-	payment: string;
-	address: string;
-	email: string;
-	phone: string;
-}
-
 // интерфейс заказа, отправляемого на сервер
 export interface IOrder extends IOrderForm {
 	payment: string;
@@ -74,6 +67,13 @@ export interface ICardsList {
 export interface IContactsForm {
 	phone: string;
 	email: string;
+}
+
+export interface IOrderForm {
+	payment: string;
+	address: string;
+	email: string;
+	phone: string;
 }
 
 export interface IResponse {

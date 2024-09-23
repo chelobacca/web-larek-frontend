@@ -16,6 +16,7 @@ export class Card extends Component<ICard> {
 	protected _addButton?: HTMLButtonElement;
 	protected _deleteButton?: HTMLButtonElement;
 	protected _index: HTMLElement;
+	protected _description?: HTMLElement;
 	protected _categories = <Record<string, string>>{
 		'софт-скил': 'card__category_soft',
 		другое: 'card__category_other',
@@ -35,6 +36,7 @@ export class Card extends Component<ICard> {
 		this._index = this.container.querySelector('.basket__item-index');
 		this._addButton = this.container.querySelector('.button.card__button');
 		this._deleteButton = this.container.querySelector('.basket__item-delete');
+		this._description = this.container.querySelector('.card__text');
 		this._picked = false;
 
 		// слушатель клика по карточке (только если карточка рендерится в галерее)
@@ -80,6 +82,12 @@ export class Card extends Component<ICard> {
 
 	set title(value: string) {
 		this._title.textContent = value;
+	}
+
+	set description(value: string) {
+		if (this._description) {
+			this.setText(this._description, value);
+		}
 	}
 
 	set price(value: number | null) {
