@@ -1,12 +1,8 @@
 import { FormErrors, IAppState, ICard, IOrder, IOrderData, IOrderForm } from '../types';
 import { IEvents } from './base/events';
-import { Model } from './base/Model'
+import { Model } from './base/Model';
 
 export class AppState extends Model<IAppState> {
-	// _payment: string;
-	// _address: string;
-	// _email: string;
-	// _phone: string;
 	basketCards: ICard[] = [];
 
 	protected events: IEvents;
@@ -19,36 +15,7 @@ export class AppState extends Model<IAppState> {
 		address: '',
 		email: '',
 		phone: '',
-	  };	
-
-	// constructor(events: IEvents) {
-	// 	this.events = events;
-	// 	this._basketCards = [];
-	// }
-
-	// set payment (data: string) {
-	// 	this._payment = data;
-	// }
-
-	// set address (data: string) {
-	// 	this._address = data;
-	// }
-
-	// set email (data: string) {
-	// 	this._email = data;
-	// }
-
-	// set phone (data: string) {
-	// 	this._phone = data;
-	// }
-
-	// set basketCards(data: ICard[]) {
-	// 	this._basketCards = data;
-	// }
-
-	// get basketCards() {
-	// 	return this._basketCards;
-	// }
+	};
 
 	addСard(data: ICard) {
 		this.basketCards.push(data);
@@ -61,10 +28,6 @@ export class AppState extends Model<IAppState> {
 		}
 	}
 
-	clearBasket() {
-		this.basketCards = [];
-	}
-
 	getCounter() {
 		return this.basketCards.length;
 	}
@@ -75,63 +38,69 @@ export class AppState extends Model<IAppState> {
 
 	//суммарная стоимость выбранных товаров
 	getTotalCost() {
-        return this.basketCards.reduce((totalCost, card) => totalCost + card.price, 0)
-    }
+		return this.basketCards.reduce((totalCost, card) => totalCost + card.price, 0);
+	}
 
 	//получить заказ для отправки на сервер
 	getOrder() {
+		//изъятие бесценного товара из заказа перед отправкой
+		const cardIdToRemove = 'b06cde61-912f-4663-9751-09956c0eed67';
+		const filteredBasket = this.basketCards.filter((card) => card.id !== cardIdToRemove);
+
 		return {
-			items: this.basketCards.map((product) => product.id),
+			items: filteredBasket.map((product) => product.id),
 			payment: this.order.payment,
 			address: this.order.address,
 			email: this.order.email,
 			phone: this.order.phone,
-			total: this.getTotalCost()
+			total: this.getTotalCost(),
 		};
 	}
 
 	emptyBasket() {
+		//снимаем статус "товар уже уже в корзине"
+		this.basketCards.forEach((element) => {
+			element.picked = false;
+		});
 		this.basketCards = [];
 	}
 
 	//заполнение свойств и значений в полях заказа при вводе данных в формах
 	setOrderField(field: keyof IOrderForm, value: string) {
-        this.order[field] = value;
+		this.order[field] = value;
 
-        if (this.validateOrder()) {
-            this.events.emit('order:ready', this.order);
-        }
+		if (this.validateOrder()) {
+			this.events.emit('order:ready', this.order);
+		}
 
 		if (this.validateContacts()) {
-            this.events.emit('contacts:ready', this.order);
-        }
-    }
+			this.events.emit('contacts:ready', this.order);
+		}
+	}
 
-    validateOrder() {
-        const errors: typeof this.formErrors = {};
-        if (!this.order.payment) {
-            errors.payment = 'Необходимо указать способ оплаты';
-        }
-        if (!this.order.address) {
-            errors.address = 'Необходимо указать адрес';
-        }
-        this.formErrors = errors;
-        this.events.emit('orderFormErrors:change', this.formErrors);
-        return Object.keys(errors).length === 0;
-    }
-	
+	validateOrder() {
+		const errors: typeof this.formErrors = {};
+		if (!this.order.payment) {
+			errors.payment = 'Необходимо указать способ оплаты';
+		}
+		if (!this.order.address) {
+			errors.address = 'Необходимо указать адрес';
+		}
+		this.formErrors = errors;
+		this.events.emit('orderFormErrors:change', this.formErrors);
+		return Object.keys(errors).length === 0;
+	}
+
 	validateContacts() {
-        const errors: typeof this.formErrors = {};
-        if (!this.order.email) {
-            errors.email = 'Необходимо указать email';
-        }
-        if (!this.order.phone) {
-            errors.phone = 'Необходимо указать номер телефона';
-        }
-        this.formErrors = errors;
-        this.events.emit('contactsFormErrors:change', this.formErrors);
-        return Object.keys(errors).length === 0;
-    }
-
+		const errors: typeof this.formErrors = {};
+		if (!this.order.email) {
+			errors.email = 'Необходимо указать email';
+		}
+		if (!this.order.phone) {
+			errors.phone = 'Необходимо указать номер телефона';
+		}
+		this.formErrors = errors;
+		this.events.emit('contactsFormErrors:change', this.formErrors);
+		return Object.keys(errors).length === 0;
+	}
 }
-

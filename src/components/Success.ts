@@ -1,14 +1,27 @@
-import { ISuccess } from "../types";
-import { Component } from "./base/Component";
-import { IEvents } from "./base/events";
+import { ISuccess } from '../types';
+import { ensureElement, formatNumber } from '../utils/utils';
+import { Component } from './base/Component';
 
+interface ISuccessActions {
+	onClick: () => void;
+}
 
 export class Success extends Component<ISuccess> {
-    protected events: IEvents;
+	protected _close: HTMLElement;
+	protected _totalCost: HTMLElement;
 
-
-    constructor(protected container: HTMLElement, events: IEvents) {
+	constructor(container: HTMLElement, actions: ISuccessActions) {
 		super(container);
-		this.events = events;
-    }
+
+		this._close = ensureElement<HTMLElement>('.order-success__close', this.container);
+		this._totalCost = ensureElement<HTMLElement>('.order-success__description', this.container);
+
+		if (actions?.onClick) {
+			this._close.addEventListener('click', actions.onClick);
+		}
+	}
+
+	set totalCost(totalCost: number) {
+		this._totalCost.textContent = 'Cписано ' + formatNumber(totalCost) + ' синапсов';
+	}
 }

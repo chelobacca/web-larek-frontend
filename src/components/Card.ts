@@ -3,8 +3,6 @@ import { CDN_URL } from '../utils/constants';
 import { ensureElement, formatNumber } from '../utils/utils';
 import { Component } from './base/Component';
 import { IEvents } from './base/events';
-import { CategoryType } from '../types'; //////////////////////////////////////////////////////
-import { cardCatalogTemplate } from '..'; //////////////////////////////////
 
 export class Card extends Component<ICard> {
 	protected events: IEvents;
@@ -16,8 +14,15 @@ export class Card extends Component<ICard> {
 	protected _price: HTMLElement;
 	protected _picked?: boolean;
 	protected _addButton?: HTMLButtonElement;
-    protected _deleteButton?: HTMLButtonElement;
+	protected _deleteButton?: HTMLButtonElement;
 	protected _index: HTMLElement;
+	protected _categories = <Record<string, string>>{
+		'софт-скил': 'card__category_soft',
+		другое: 'card__category_other',
+		дополнительное: 'card__category_additional',
+		кнопка: 'card__category_button',
+		'хард-скил': 'card__category_hard',
+	};
 
 	constructor(protected container: HTMLElement, events: IEvents) {
 		super(container);
@@ -28,14 +33,14 @@ export class Card extends Component<ICard> {
 		this._price = ensureElement<HTMLElement>('.card__price', this.container);
 		this._category = this.container.querySelector('.card__category');
 		this._index = this.container.querySelector('.basket__item-index');
-        this._addButton = this.container.querySelector('.button.card__button');
-        this._deleteButton = this.container.querySelector('.basket__item-delete');
+		this._addButton = this.container.querySelector('.button.card__button');
+		this._deleteButton = this.container.querySelector('.basket__item-delete');
 		this._picked = false;
 
 		// слушатель клика по карточке (только если карточка рендерится в галерее)
-        if (this.container.classList.contains('gallery__item')) {
-	    this.container.addEventListener('click', () => this.events.emit('card:select', { card: this }));
-        };
+		if (this.container.classList.contains('gallery__item')) {
+			this.container.addEventListener('click', () => this.events.emit('card:select', this));
+		}
 
 		//слушатель кнопки добавления в корзину
 		if (this._addButton) {
@@ -79,37 +84,17 @@ export class Card extends Component<ICard> {
 
 	set price(value: number | null) {
 		if (value !== null) {
-		this._price.textContent = formatNumber(value) + ' синапсов';
+			this._price.textContent = formatNumber(value) + ' синапсов';
 		}
 		if (value === null) {
 			this.setText(this._price, 'Бесценно');
 		}
 	}
 
-	set category(category: string) {
+	set category(value: string) {
 		if (this._category) {
-			this._category.textContent = category;
-			this.setText(this._category, category);
-
-			switch (category) {
-				case 'другое':
-					this._category.classList.add('card__category_other');
-					break;
-				case 'дополнительное':
-					this._category.classList.add('card__category_additional');
-					break;
-				case 'софт-скил':
-					this._category.classList.add('card__category_soft');
-					break;
-				case 'хард-скил':
-					this._category.classList.add('card__category_hard');
-					break;
-				case 'кнопка':
-					this._category.classList.add('card__category_button');
-					break;
-				default:
-					break;
-			}
+			this.setText(this._category, value);
+			this._category.className = `card__category ${this._categories[value]}`;
 		}
 	}
 

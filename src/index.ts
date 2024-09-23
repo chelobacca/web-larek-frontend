@@ -40,8 +40,6 @@ const gallery = new CardsContainer(ensureElement<HTMLTemplateElement>('.gallery'
 const basket = new Basket(cloneTemplate(basketTemplate), events);
 const order = new Order(cloneTemplate(orderTemplate), events);
 const contacts = new Contacts(cloneTemplate(contactsTemplate), events);
-const success = new Success(cloneTemplate(successTemplate), events);
-
 
 //слушатель на все события
 events.onAll((event) => {
@@ -70,9 +68,8 @@ events.on('cards:loaded', () => {
 });
 
 //клик по карточке, открывается окно с товаром
-events.on('card:select', (data: { card: Card }) => {
-	/////////////FIXXXXXXXXXX............/////////////////////////////////////////////
-	const { card } = data;
+events.on('card:select', (data: ICard) => {
+	const card = data;
 	const cardInstance = new Card(cloneTemplate(cardPreviewTemplate), events);
 	const viewedCard = cardsData.getCard(card.id);
 
@@ -105,7 +102,7 @@ events.on('card:add', (data: ICard) => {
 
 	appData.addСard(pickedCard);
 	pickedCard.picked = true; //товар в корзине, кнопка добавления неактивна
-	page.counter = appData.getCounter(); 
+	page.counter = appData.getCounter();
 	modal.close();
 });
 
@@ -115,8 +112,8 @@ events.on('card:delete', (data: ICard) => {
 	const cancelledCard = cardsData.getCard(card.id);
 
 	appData.deleteCard(cancelledCard);
-	cancelledCard.picked = false; //отказались от товара, кнопка активна 
-	page.counter = appData.getCounter(); 
+	cancelledCard.picked = false; //отказались от товара, кнопка активна
+	page.counter = appData.getCounter();
 	events.emit('cart:open'); //заново рендерим корзину после удаления карточки
 });
 
@@ -139,7 +136,7 @@ events.on('order:submit', (data) => {
 		content: contacts.render({
 			email: '',
 			phone: '',
-			valid: false, 
+			valid: false,
 			errors: [],
 		}),
 	});
@@ -157,51 +154,49 @@ events.on(/^contacts\..*:change/, (data: { field: keyof IOrderForm; value: strin
 
 // Изменилось состояние валидации формы с адресом и способом оплаты
 events.on('orderFormErrors:change', (errors: Partial<IOrderForm>) => {
-    const { payment, address } = errors;
-    order.valid = !payment && !address;
-    order.errors = Object.values({payment, address}).filter(i => !!i).join('; ');
+	const { payment, address } = errors;
+	order.valid = !payment && !address;
+	order.errors = Object.values({ payment, address })
+		.filter((i) => !!i)
+		.join('; ');
 });
 
 // Изменилось состояние валидации формы с почтой и телефоном
 events.on('contactsFormErrors:change', (errors: Partial<IOrderForm>) => {
-    const { email, phone } = errors;
-    contacts.valid = !email && !phone;
-    contacts.errors = Object.values({email, phone}).filter(i => !!i).join('; ');
+	const { email, phone } = errors;
+	contacts.valid = !email && !phone;
+	contacts.errors = Object.values({ email, phone })
+		.filter((i) => !!i)
+		.join('; ');
 });
-
-
-
-
-
 
 //нажатие кнопки "оплатить", объект с заказом отправляется на сервер
 events.on('contacts:submit', () => {
-	console.log(appData.order);
 	console.log(appData.getOrder());
 
-	api.postOrder(appData.getOrder()).then((result) => {
-		console.log(result);
-		appData.emptyBasket(); //очистка корзины
-		page.counter = appData.getCounter(); //обновление счетчика
-		events.emit('order:completed'); 
-		modal.close();
-	});
-});
+	api
+		.postOrder(appData.getOrder())
+		.then((result) => {
+			//пришел ответ сервера, открывается модальное окно с сообщением об успешной покупке
+			appData.emptyBasket(); //очистка корзины
+			page.counter = appData.getCounter(); //обновление счетчика
 
-events.on('order:completed', () => {
-	
-	modal.render({
-		content: success.render({
+			const success = new Success(cloneTemplate(successTemplate), {
+				onClick: () => {
+					modal.close();
+				},
+			});
 
+			modal.render({
+				content: success.render({
+					totalCost: result.total,
+				}),
+			});
 		})
-	  });
-
-
-
+		.catch((err) => {
+			console.error(err);
+		});
 });
-
-
-
 
 // Блокируем прокрутку страницы если открыта модалка
 events.on('modal:open', () => {
@@ -212,5 +207,3 @@ events.on('modal:open', () => {
 events.on('modal:close', () => {
 	page.locked = false;
 });
-
-
