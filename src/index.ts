@@ -40,32 +40,6 @@ const basket = new Basket(cloneTemplate(basketTemplate), events);
 const order = new Order(cloneTemplate(orderTemplate), events);
 const contacts = new Contacts(cloneTemplate(contactsTemplate), events);
 
-// Чтобы мониторить все события, для отладки (слушатель на все события)
-events.onAll((event) => {
-	console.log(event.eventName, event.data);
-});
-
-//загрузка карточек с сервера
-api
-	.getCardsList()
-	.then((data) => {
-		cardsData.cards = data.items;
-		events.emit('cards:loaded');
-	})
-	.catch((err) => {
-		console.error(err);
-	});
-
-//отрисовка каталога товаров на главной странице
-events.on('cards:loaded', () => {
-	const cardsArray = cardsData.cards.map((card) => {
-		const cardInstance = new Card(cloneTemplate(cardCatalogTemplate), events);
-		return cardInstance.render(card);
-	});
-
-	gallery.render({ catalog: cardsArray });
-});
-
 //клик по карточке, открывается окно с товаром
 events.on('card:select', (data: ICard) => {
 	const card = data;
@@ -84,8 +58,8 @@ events.on('cart:open', () => {
 		cardInstance.index = index + 1;
 		return cardInstance.render(card);
 	});
-
-	basket.selected = appData.basketCards; //(де)активация кнопки "оформить" в зависимости от наличия товаров в корзине
+	//(де)активация кнопки "оформить" в зависимости от наличия товаров в корзине
+	basket.selected = appData.basketCards; 
 	basket.setTotalCost(appData.getTotalCost()); //суммарная стоимость товаров
 
 	modal.render({
@@ -203,3 +177,31 @@ events.on('modal:open', () => {
 events.on('modal:close', () => {
 	page.locked = false;
 });
+
+//загрузка карточек с сервера
+api
+	.getCardsList()
+	.then((data) => {
+		cardsData.cards = data.items;
+		events.emit('cards:loaded');
+	})
+	.catch((err) => {
+		console.error(err);
+	});
+
+//отрисовка каталога товаров на главной странице
+events.on('cards:loaded', () => {
+	const cardsArray = cardsData.cards.map((card) => {
+		const cardInstance = new Card(cloneTemplate(cardCatalogTemplate), events);
+		return cardInstance.render(card);
+	});
+
+	gallery.render({ catalog: cardsArray });
+});
+
+// Чтобы мониторить все события, для отладки (слушатель на все события)
+//для отладки на стадии исправления замечаний ревьюера
+// events.onAll((event) => {
+// 	console.log(event.eventName, event.data);
+// });
+

@@ -58,20 +58,22 @@ interface IPage {
 ```
 interface ICard {
 	id: string;
-    description: string;
-    image: string;
-    title: string;
-    category: string;
-    price: number;
+	description: string;
+	image: string;
+	title: string;
+	category: string;
+	price: number | null;
+	picked: boolean;
+	index: number;
 }
 ```
-Корзина товаров
+Состояние приложения
 
 ```
-interface IBasketView {
-    items: HTMLElement[];
-    total: number;
-    selected: string[];
+interface IAppState {
+	basketCards: ICard[];
+	basket: string[];
+	order: IOrder;
 }
 
 ```
@@ -86,6 +88,29 @@ interface IOrder {
     total: number
     items: ICard[];
 }    
+```
+
+Интерфейс модели данных заказа
+```
+interface IOrderData {
+	payment: string;
+	address: string;
+	email: string;
+	phone: string;
+	basketCards: ICard[];
+}
+```
+
+Интерфейс заказа, отправляемого на сервер
+```
+interface IOrder extends IOrderForm {
+	payment: string;
+	email: string;
+	phone: string;
+	address: string;
+	total: number;
+	items: string[];
+}
 ```
 
 Ответ сервера при отправке заказа
@@ -135,12 +160,16 @@ interface ICardList {
 - `emit` - инициализация события
 - `trigger` - возвращает функцию, при вызове которой инициализируется требуемое в параметрах событие   
 
+
+
 ---
 ---
 
 ### Слой данных
 
  #### Класс Model 
+ Абстрактный класс модели данных, его наследником является класс AppState/
+
  Базовая модель, чтобы можно было отличить ее от простых объектов с данными/
 
 ```
@@ -160,13 +189,48 @@ interface ICardList {
 #### Класс CardsData
 
 Класс отвечает за хранение и логику работы с данными карточек, получаемых с сервера.\
-Конструктор класса принимает инстант брокера событий\
+Конструктор класса принимает инстанс брокера событий\
 В полях класса хранятся следующие данные:
 - _cards: ICard[] - массив объектов карточек
 - _preview: string | null - id карточки, выбранной для просмотра в модальном окне
+- events: IEvents - брокер событий
 
-Также класс предоставляет метод для взаимодействия с этими данными.\
-```getCard(cardId: string): ICard``` - возвращает карточку по ее id
+Также класс предоставляет методы для взаимодействия с этими данными.\
+```getCard(cardId: string): ICard``` - возвращает карточку по ее id\
+```getCards()``` - возвращает массив загруженных карточек\
+
+
+#### Класс AppState 
+Класс служит хранилищем данных о товарах в корзине, составе заказа, введенных пользователем данных. Отвечает за обработку этих данных, валидацию форм, обработку ошибок в полях форм. 
+
+Поля класса: \
+`basketCards: ICard[] = [];` - массив карточек товаров, выбранных для покупки\
+`events: IEvents;` - брокер событий\
+
+Объект заказа, который будет отправлен в запросе на сервер. Содержит массив идентификаторов выбранных товаров, их суммарную стоимость, способ оплаты и данные, предоставленные пользователем: 
+```
+order: IOrder = {
+		items: [],
+		payment: '',
+		total: null,
+		address: '',
+		email: '',
+		phone: '',
+	};
+```
+
+Методы:\
+`addСard(data: ICard)` - добавление товара в корзину\
+`deleteCard(item: ICard)` - удаление товара из корзины\
+`getCounter()` - возвращает количество товаров в корзине\
+`getCardIndex(card: ICard)` - возвращает порядковый номер товара в списке в корзине
+`getTotalCost()` - возвращает суммарную стоимость выбранных товаров\
+`getOrder()` - возвращает объект заказа с массивом товаров, за исключением "бесценного" товара, если таковой был выбран пользователем для покупки\
+`emptyBasket()` - опустошает корзину после успешной покупки\
+`setOrderField(field: keyof IOrderForm, value: string)` - заполняет свойства и значения в полях заказа при вводе данных в формах\
+`validateOrder()` - служит для валидации инпутов в окне с адресом и способом оплаты
+`validateContacts()` - служит для валидации инпутов в окне с формой для ввода почты и номера телефона
+
 
 ---
 ---
@@ -176,7 +240,7 @@ interface ICardList {
 Все классы представления отвечают за отображение внутри контейнера (DOM-элемент) передаваемых в них данных.
 
 #### Базовый класс Component 
-`abstract class Component<T>` - Необходим для управления DOM-элементами.
+`abstract class Component<T>` - Необходим для управления DOM-элементами. Абстрактный класс, наследниками которого являются классы предствления. 
 
 `protected constructor(protected readonly container: HTMLElement)` - конструктор принимает родительский элемент.
 
@@ -205,32 +269,13 @@ interface ICardList {
 - modal: HTMLElement - элемент модального окна
 - events: IEvents - брокер событий
 
-#### Класс ModalWithForm
-Расширяет класс Modal. Предназначен для реализации модального окна с формой содержащей поля ввода. При сабмите инициирует событие передавая в него объект с данными из полей ввода формы. При изменении данных в полях ввода инициирует событие изменения данных. Предоставляет методы для отображения ошибок и управления активностью кнопки сохранения.\
-Поля класса:
-- submitButton: HTMLButtonElement - Кнопка подтверждения
-- _form: HTMLFormElement - элемент формы
-- formName: string - значение атрибута name формы
-- inputs: NodeListOf<HTMLInputElement> - коллекция всех полей ввода формы
-- errors: Record<string, HTMLElement> - объект хранящий все элементы для вывода ошибок под полями формы с привязкой к атрибуту name инпутов
-
-Методы:
-- setValid(isValid: boolean): void - изменяет активность кнопки подтверждения
-- getInputValues(): Record<string, string> - возвращает объект с данными из полей формы, где ключ - name инпута, значение - данные введенные пользователем
-- setInputValues(data: Record<string, string>): void - принимает объект с данными для заполнения полей формы
-- setError(data: { field: string, value: string, validInformation: string }): void - принимает объект с данными для отображения или сокрытия текстов ошибок под полями ввода
-- showInputError (field: string, errorMessage: string): void - отображает полученный текст ошибки под указанным полем ввода
-- hideInputError (field: string): void - очищает текст ошибки под указанным полем ввода
-- close (): void - расширяет родительский метод дополнительно при закрытии очищая поля формы и деактивируя кнопку сохранения
-- get form: HTMLElement - геттер для получения элемента формы
-
 #### Класс Page
 
 Отвечает за отображение главной страницы. Расширяет класс Component.\
 Поля класса:
-- protected _counter: HTMLElement; 
-- protected _catalog: HTMLElement;
-- protected _wrapper: HTMLElement;
+
+- protected _counter: HTMLElement;
+- protected _wrapper: HTMLElement; 
 - protected _cart: HTMLElement;
 
 ```constructor(container: HTMLElement, protected events: IEvents)``` - Конструктор принимает родительский элемент и обработчик событий\
@@ -246,12 +291,23 @@ interface ICardList {
 Отвечает за отображение карточки товара на главной странице, в модальном окне и в корзине. Расширяет класс Component.
 
 Поля класса: 
- - protected _category: HTMLElement;
- - protected _id: HTMLElement;
- - protected _title: HTMLElement;
- - protected _image: HTMLImageElement;
- - protected _price: HTMLElement;
- - protected _button: HTMLButtonElement;
+-	protected _id: string;
+-	protected _image?: HTMLImageElement;
+-	protected _title: HTMLElement;
+-	protected _category?: HTMLElement;
+-	protected _price: HTMLElement;
+-	protected _picked?: boolean;
+-	protected _addButton?: HTMLButtonElement;
+-	protected _deleteButton?: HTMLButtonElement;
+-	protected _index: HTMLElement;
+-	protected _description?: HTMLElement;
+-	protected _categories = <Record<string, string>>{
+		'софт-скил': 'card__category_soft',
+		другое: 'card__category_other',
+		дополнительное: 'card__category_additional',
+		кнопка: 'card__category_button',
+		'хард-скил': 'card__category_hard',
+	};
 
  ```constructor(protected blockName: string, container: HTMLElement, actions?: ICardActions)``` - Конструктор принимает имя блока, родительский элемент и функцию-колбэк.\
 
@@ -264,13 +320,40 @@ interface ICardList {
  - ```get title(): string``` - геттер названия товара
  - ```set image(value: string)``` - сеттер изображения товара
  - ```set price(value: string)``` - сеттер цены товара
+ - ```set picked(value: boolean)``` - сеттер статуса "карточка уже в корзине" 
 
  #### Класс CardsContainer
-Отвечает за отображение блока с карточками на главной странице. Предоставляет метод `addCard(cardElement: HTMLElement)` для добавления карточек на страницу и сеттер `catalog` для полного обновления содержимого. В конструктор принимает контейнер, в котором размещаются карточки.
+Отвечает за отображение блока с карточками на главной странице. Предоставляет сеттер `catalog` для полного обновления содержимого. В конструктор принимает контейнер, в котором размещаются карточки. 
 
 #### Класс Basket
-Отвечает за отображение корзины с товарами. 
+Отвечает за отображение корзины с товарами в модальном окне. Наследует базовый класс Component. В конструктор принимает контейнер, в котором размещаются карточки и брокер событий: `constructor(container: HTMLElement, protected events: EventEmitter)`
 
+Поля класса:\
+	protected _list: HTMLElement;
+	protected _total: HTMLElement;
+	protected _button: HTMLElement;
+
+Сеттеры: 
+`set items(items: HTMLElement[])` - карточки для отображения в корзине\
+`set selected(items: ICard[])` - сеттер состояния корзины и кнопки оформления заказа в зависимости от наличия или отсутвия товаров, выбранных к покупке\
+
+Метод `setTotalCost(total: number)` - устанавливает стоимость заказа для отрисовки в корзине.\
+
+#### Класс Form 
+Расщиряет класс Component. Предназначен для реализации модального окна с формой содержащей поля ввода. При сабмите инициирует событие передавая в него объект с данными из полей ввода формы. При изменении данных в полях ввода инициирует событие изменения данных. Предоставляет методы для отображения ошибок и записи введенных данных в модель данных. 
+
+Поля класса:
+-	protected _submit: HTMLButtonElement;
+-	protected _errors: HTMLElement;
+
+#### Класс Order 
+Расширяет Класс Form. Служит для отображения формы с выбором способа оплаты и полем для ввода адреса доставки. Предоставляет метод для сброса выделения кнопок выбора способа оплаты: `resetPayment()` и сеттер для ввода адреса: `set address(value: string)`
+
+#### Класс Contacts 
+Расширяет Класс Form. Служит для отображения формы с полями для ввода электронной почты и номера телефона пользователя.\ 
+Сеттеры: 
+`set phone(value: string)` - ввод телефона\
+`set email(value: string)` - ввод почты\
 
 ---
 ---
@@ -280,8 +363,9 @@ interface ICardList {
 #### Класс AppApi
 Принимает в конструктор экземпляр класса Api и предоставляет методы реализующие взаимодействие с бэкендом сервиса.
 
-
-
+Методы: 
+```getCardsList(): Promise<ICardsList>``` - получение каталога товаров с сервера\
+```postOrder(orderData: IOrder): Promise<IResponse>``` - отправка заказа на сервер
 
 ## Взаимодействие компонентов
 Код, описывающий взаимодействие представления и данных между собой находится в файле `index.ts`, выполняющем роль презентера.\
@@ -297,15 +381,20 @@ interface ICardList {
 - `card:select` - выбор карточки для отображения в модальном окне
 - `cart:open` - открытие корзины в модальном окне 
 - `order:open` - открытие окна оформления заказа
+- `order:submit` - подтверждение ввода адреса и открытие окна с формой для ввода почты и телефона
+- `contacts:submit` - сохранение почты и телефона пользователя в модальном окне
+- `card:add` - добавление товара в корзину
+- `card:delete` - удаление товара из корзины
+- `cards:loaded` - отрисовка каталога товаров на главной странице после загрузки каталога товаров с сервера
 - `payment:validation` - событие, сообщающее о необходимости валидации формы оплаты
 - `phone:validation` - событие, сообщающее о необходимости валидации формы телефона
 - `email:validation` - событие, сообщающее о необходимости валидации формы почты
+- `address:change` - изменение данных в форме с адресом пользователя
+- `email:change` - изменение данных в форме с почтой пользователя
+- `phone:change` - изменение данных в форме c номером телефона
+- `payment:change` - изменение выбранного способа оплаты
 
-- `address:input` - изменение данных в форме с адресом пользователя
-- `email:input` - изменение данных в форме с почтой пользователя
-- `phone:input` - изменение данных в форме c номером телефона
-- `address:submit` - сохранение адреса пользователя в модальном окне
-- `contacts:submit` - сохранение почты и телефона пользователя в модальном окне
+
 
 
 

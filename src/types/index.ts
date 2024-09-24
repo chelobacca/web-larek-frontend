@@ -12,7 +12,6 @@ export interface IAppState {
 	basketCards: ICard[];
 	basket: string[];
 	order: IOrder;
-	loading: boolean;
 }
 
 // интерфейс карточки товара
