@@ -203,7 +203,7 @@ events.on('cards:loaded', () => {
 
 // Чтобы мониторить все события, для отладки (слушатель на все события)
 //для отладки на стадии исправления замечаний ревьюера
-events.onAll((event) => {
-	console.log(event.eventName, event.data);
-});
+// events.onAll((event) => {
+// 	console.log(event.eventName, event.data);
+// });
 
