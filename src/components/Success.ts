@@ -22,6 +22,6 @@ export class Success extends Component<ISuccess> {
 	}
 
 	set totalCost(totalCost: number) {
-		this._totalCost.textContent = 'Cписано ' + formatNumber(totalCost) + ' синапсов';
+		this.setText(this._totalCost, 'Cписано ' + formatNumber(totalCost) + ' синапсов');
 	}
 }

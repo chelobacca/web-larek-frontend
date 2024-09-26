@@ -23,7 +23,6 @@ export class Basket extends Component<IBasketView> {
 
 		if (this._button) {
 			this._button.addEventListener('click', () => {
-				
 				events.emit('order:open');
 			});
 		}
@@ -49,7 +48,8 @@ export class Basket extends Component<IBasketView> {
 	}
 
 	setTotalCost(total: number) {
-		this._total.textContent = formatNumber(total) + ' синапсов';
+		this.setText(this._total, formatNumber(total) + ' синапсов');
+
 		//проверка на единственный бесценный товар в корзине, который нельзя заказать без других
 		if (total === 0) {
 			this.setDisabled(this._button, true);

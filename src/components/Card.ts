@@ -81,7 +81,7 @@ export class Card extends Component<ICard> {
 	}
 
 	set title(value: string) {
-		this._title.textContent = value;
+		this.setText(this._title, value);
 	}
 
 	set description(value: string) {
@@ -92,7 +92,7 @@ export class Card extends Component<ICard> {
 
 	set price(value: number | null) {
 		if (value !== null) {
-			this._price.textContent = formatNumber(value) + ' синапсов';
+			this.setText(this._price, formatNumber(value) + ' синапсов');
 		}
 		if (value === null) {
 			this.setText(this._price, 'Бесценно');
@@ -117,7 +117,7 @@ export class Card extends Component<ICard> {
 	set picked(value: boolean) {
 		this._picked = value;
 		if (this._addButton) {
-			this._addButton.disabled = value;
+			this.setDisabled(this._addButton, value);
 		}
 	}
 }

@@ -1,18 +1,22 @@
 import { Form } from './common/Form';
 import { IOrderForm } from '../types';
 import { IEvents } from './base/events';
+import { ensureAllElements } from '../utils/utils';
 
 export class Order extends Form<IOrderForm> {
-	protected paymentButtons = this.container.querySelectorAll('.button_alt');
+	protected _paymentButtons: HTMLButtonElement[];
+	
 
 	constructor(container: HTMLFormElement, events: IEvents) {
 		super(container, events);
+		this._paymentButtons = ensureAllElements<HTMLButtonElement>('.button_alt', container);
+
 		//переключение кнопок с двумя (или более, если добавятся) вариантами оплаты
-		//реализация из проекта "Сложно сосредоточиться"
-		this.paymentButtons.forEach((button) => {
+		this._paymentButtons.forEach((button) => {
 			button.addEventListener('click', () => {
 				 this.resetPayment();//деактивировать все кнопки
-				button.classList.add('button_alt-active'); //активировать выбранную кнопку
+				 this.toggleClass(button, 'button_alt-active'); //активировать выбранную кнопку
+
 				const name = button.attributes.getNamedItem('name').value;
 				this.onInputChange('payment', name);
 			});
@@ -25,7 +29,7 @@ export class Order extends Form<IOrderForm> {
 
 	//сброс выделения кнопок выбора способа оплаты
 	resetPayment() {
-		this.paymentButtons.forEach((btn) => {
+		this._paymentButtons.forEach((btn) => {
 			btn.classList.remove('button_alt-active');
 		});
 	}
