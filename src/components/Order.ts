@@ -11,10 +11,7 @@ export class Order extends Form<IOrderForm> {
 		//реализация из проекта "Сложно сосредоточиться"
 		this.paymentButtons.forEach((button) => {
 			button.addEventListener('click', () => {
-				this.paymentButtons.forEach((btn) => {
-					btn.classList.remove('button_alt-active'); //деактивировать все кнопки
-				});
-
+				 this.resetPayment();//деактивировать все кнопки
 				button.classList.add('button_alt-active'); //активировать выбранную кнопку
 				const name = button.attributes.getNamedItem('name').value;
 				this.onInputChange('payment', name);

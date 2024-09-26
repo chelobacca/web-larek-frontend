@@ -91,6 +91,7 @@ events.on('card:delete', (data: ICard) => {
 
 //нажатие кнопки "оформить", открывается окно с адресом и способом оплаты
 events.on('order:open', () => {
+	modal.close();
 	modal.render({
 		content: order.render({
 			address: '',
@@ -104,6 +105,7 @@ events.on('order:open', () => {
 
 //нажатие кнопки "далее", открывается окно с почтой и телефоном
 events.on('order:submit', () => {
+	modal.close();
 	modal.render({
 		content: contacts.render({
 			email: '',
@@ -156,7 +158,7 @@ events.on('contacts:submit', () => {
 					modal.close();
 				},
 			});
-
+			modal.close();
 			modal.render({
 				content: success.render({
 					totalCost: result.total,
@@ -201,7 +203,7 @@ events.on('cards:loaded', () => {
 
 // Чтобы мониторить все события, для отладки (слушатель на все события)
 //для отладки на стадии исправления замечаний ревьюера
-// events.onAll((event) => {
-// 	console.log(event.eventName, event.data);
-// });
+events.onAll((event) => {
+	console.log(event.eventName, event.data);
+});
 

@@ -19,6 +19,7 @@ export class Modal extends Component<IModalData> {
 		this._closeButton.addEventListener('click', this.close.bind(this));
 		this.container.addEventListener('click', this.close.bind(this));
 		this._content.addEventListener('click', (event) => event.stopPropagation());
+		this._closeButton.addEventListener('click', (event) => event.stopPropagation());
 	}
 
 	set content(value: HTMLElement) {
@@ -26,12 +27,14 @@ export class Modal extends Component<IModalData> {
 	}
 
 	open() {
-		this.container.classList.add('modal_active');
+		// this.container.classList.add('modal_active');
+		this.toggleClass(this.container, 'modal_active');
 		this.events.emit('modal:open');
 	}
 
 	close() {
-		this.container.classList.remove('modal_active');
+		// this.container.classList.remove('modal_active');
+		this.toggleClass(this.container, 'modal_active');
 		this.content = null;
 		this.events.emit('modal:close');
 	}

@@ -23,6 +23,7 @@ export class Basket extends Component<IBasketView> {
 
 		if (this._button) {
 			this._button.addEventListener('click', () => {
+				
 				events.emit('order:open');
 			});
 		}
@@ -44,11 +45,7 @@ export class Basket extends Component<IBasketView> {
 
 	//проверка наличия товаров корзине для управления состоянием кнопки "оформить"
 	set selected(items: ICard[]) {
-		if (items.length) {
-			this.setDisabled(this._button, false);
-		} else {
-			this.setDisabled(this._button, true);
-		}
+		this.setDisabled(this._button, items.length === 0);
 	}
 
 	setTotalCost(total: number) {

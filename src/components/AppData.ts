@@ -44,9 +44,8 @@ export class AppState extends Model<IAppState> {
 	//получить заказ для отправки на сервер
 	getOrder() {
 		//изъятие бесценного товара из заказа перед отправкой
-		const cardIdToRemove = 'b06cde61-912f-4663-9751-09956c0eed67';
-		const filteredBasket = this.basketCards.filter((card) => card.id !== cardIdToRemove);
-
+		const filteredBasket = this.basketCards.filter((card) => card.price !== 0 && card.price !== null);
+		
 		return {
 			items: filteredBasket.map((product) => product.id),
 			payment: this.order.payment,
